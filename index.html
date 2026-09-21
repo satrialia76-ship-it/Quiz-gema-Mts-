@@ -1,0 +1,402 @@
+```html
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kuis Interaktif Teknologi & AI</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-full flex flex-col justify-between antialiased selection:bg-cyan-500 selection:text-white">
+
+  <!-- Background Decorative Gradient -->
+  <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+    <div class="absolute -top-40 -left-40 w-96 h-96 bg-cyan-600/20 rounded-full blur-3xl"></div>
+    <div class="absolute top-1/2 -right-40 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-40 left-1/3 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-lg shadow-lg shadow-cyan-500/20">
+          🤖
+        </div>
+        <div>
+          <h1 class="font-bold text-lg leading-tight text-white">Kuis AI & Tech</h1>
+          <p class="text-xs text-slate-400">Uji Wawasan Teknologi</p>
+        </div>
+      </div>
+      <div id="quiz-badge" class="hidden text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-cyan-400">
+        15 Soal
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-grow flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl my-6">
+
+      <!-- START SCREEN -->
+      <div id="screen-start" class="bg-slate-800/80 border border-slate-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-xl text-center">
+        <div class="inline-flex p-4 bg-cyan-500/10 border border-cyan-500/20 rounded-2xl mb-6 text-4xl text-cyan-400">
+          🚀
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white mb-3">Tantangan Kuis Teknologi & AI</h2>
+        <p class="text-slate-300 text-sm sm:text-base mb-8 max-w-md mx-auto leading-relaxed">
+          Uji pemahamanmu seputar Artificial Intelligence, Machine Learning, Cloud Computing, dan tren teknologi masa kini melalui 15 soal seru!
+        </p>
+        <button onclick="startQuiz()" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold rounded-2xl shadow-lg shadow-cyan-500/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-lg">
+          Mulai Kuis Sekarang 🔥
+        </button>
+      </div>
+
+      <!-- QUIZ SCREEN -->
+      <div id="screen-quiz" class="hidden bg-slate-800/80 border border-slate-700/80 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl">
+        <!-- Progress Bar -->
+        <div class="mb-6">
+          <div class="flex justify-between items-center text-xs font-semibold text-slate-400 mb-2">
+            <span id="progress-text">Soal 1 dari 15</span>
+            <span id="score-live-text" class="text-cyan-400">Skor: 0</span>
+          </div>
+          <div class="w-full h-2.5 bg-slate-700/60 rounded-full overflow-hidden p-0.5">
+            <div id="progress-bar" class="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-300" style="width: 6.66%;"></div>
+          </div>
+        </div>
+
+        <!-- Question Text -->
+        <div class="mb-8 min-h-[80px]">
+          <h3 id="question-text" class="text-lg sm:text-xl font-bold text-slate-100 leading-snug">
+            Loading Soal...
+          </h3>
+        </div>
+
+        <!-- Answer Options -->
+        <div id="options-container" class="space-y-3 mb-8">
+          <!-- Options injected by JS -->
+        </div>
+
+        <!-- Next / Feedback Button -->
+        <div class="flex justify-end">
+          <button id="btn-next" onclick="nextQuestion()" disabled class="w-full sm:w-auto px-6 py-3.5 bg-slate-700 text-slate-400 font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+            Soal Berikutnya ➔
+          </button>
+        </div>
+      </div>
+
+      <!-- RESULT SCREEN -->
+      <div id="screen-result" class="hidden bg-slate-800/80 border border-slate-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-xl text-center">
+        <div class="inline-flex p-4 bg-gradient-to-tr from-cyan-500/20 to-purple-500/20 border border-cyan-500/30 rounded-2xl mb-4 text-5xl">
+          🏆
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white mb-2">Hasil Kuis Kamu!</h2>
+        <p id="result-badge" class="text-sm font-semibold text-cyan-400 mb-6">Luar biasa!</p>
+
+        <!-- Score Box -->
+        <div class="bg-slate-900/80 border border-slate-700/60 rounded-2xl p-6 mb-8 max-w-sm mx-auto">
+          <div class="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-1">Skor Akhir</div>
+          <div id="final-score" class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+            0 / 15
+          </div>
+          <div id="final-percentage" class="text-xs text-slate-400 mt-2">0% Jawaban Benar</div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-3 justify-center mb-8">
+          <button onclick="shareWhatsApp()" class="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2">
+            <span>💬</span> Bagikan ke WhatsApp
+          </button>
+          <button onclick="restartQuiz()" class="px-6 py-3.5 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2">
+            <span>🔄</span> Coba Lagi
+          </button>
+        </div>
+
+        <!-- Detailed Review Accordion / Toggle -->
+        <div class="text-left border-t border-slate-700/70 pt-6">
+          <h4 class="text-sm font-bold text-slate-300 mb-4 flex items-center gap-2">
+            <span>📋</span> Pembahasan & Kunci Jawaban:
+          </h4>
+          <div id="review-list" class="space-y-3 max-h-80 overflow-y-auto pr-1">
+            <!-- Review items generated by JS -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 bg-slate-900/60 py-4 text-center text-xs text-slate-500">
+    Kuis Teknologi & AI • Siap Bagikan ke WhatsApp
+  </footer>
+
+  <script>
+    // Data Soal & Kunci Jawaban
+    const quizData = [
+      {
+        q: "Apa kepanjangan dari AI?",
+        options: ["Automatic Integration", "Artificial Intelligence", "Advanced Internet", "Algorithmic Input"],
+        answer: 1
+      },
+      {
+        q: "Teknologi yang memungkinkan komputer belajar dari data tanpa diprogram secara eksplisit disebut:",
+        options: ["Cloud Computing", "Blockchain", "Machine Learning", "Virtual Reality"],
+        answer: 2
+      },
+      {
+        q: "ChatGPT, Gemini, dan Claude adalah contoh dari:",
+        options: ["Robot Fisik", "Large Language Model / LLM", "Sistem Operasi", "Database"],
+        answer: 1
+      },
+      {
+        q: "Apa fungsi utama \"prompt\" dalam AI generatif?",
+        options: ["Menyimpan data", "Perintah/instruksi yang diberikan ke AI", "Menghapus virus", "Mempercepat internet"],
+        answer: 1
+      },
+      {
+        q: "Teknologi di balik Bitcoin dan NFT adalah:",
+        options: ["AI", "5G", "Blockchain", "IoT"],
+        answer: 2
+      },
+      {
+        q: "\"Hallucination\" pada AI artinya:",
+        options: ["AI bisa melihat", "AI memberikan jawaban yang terdengar benar tapi salah/fiktif", "AI error sistem", "AI bisa tidur"],
+        answer: 1
+      },
+      {
+        q: "Contoh perangkat IoT / Internet of Things adalah:",
+        options: ["DVD Player", "Smart TV dan Smartwatch", "Mouse", "Keyboard"],
+        answer: 1
+      },
+      {
+        q: "Tujuan utama \"Training Data\" untuk AI adalah:",
+        options: ["Menguji kecepatan internet", "Mengajari AI pola dan pengetahuan", "Membuat password", "Menghapus file"],
+        answer: 1
+      },
+      {
+        q: "Keunggulan utama jaringan 5G dibanding 4G adalah:",
+        options: ["Baterai lebih awet", "Kecepatan tinggi dan latensi rendah", "Harga lebih murah", "Layar lebih besar"],
+        answer: 1
+      },
+      {
+        q: "\"Deepfake\" dibuat menggunakan AI untuk:",
+        options: ["Meningkatkan keamanan", "Membuat video/gambar palsu yang terlihat nyata", "Mempercepat website", "Membuat game"],
+        answer: 1
+      },
+      {
+        q: "Apa itu Cloud Computing?",
+        options: ["Komputer anti air", "Menyimpan dan mengakses data lewat internet", "Jaringan di 1 gedung", "Jenis virus"],
+        answer: 1
+      },
+      {
+        q: "Algoritma rekomendasi di YouTube, TikTok, Shopee menggunakan:",
+        options: ["Kalkulator", "AI", "Radio", "Fax"],
+        answer: 1
+      },
+      {
+        q: "\"Neural Network\" terinspirasi dari cara kerja:",
+        options: ["Mesin", "Otak manusia", "Panel surya", "Baterai"],
+        answer: 1
+      },
+      {
+        q: "Etika penting dalam penggunaan AI adalah:",
+        options: ["Pakai data orang tanpa izin", "Buat berita hoaks", "Transparansi dan tidak bias", "Sembunyikan sumber data"],
+        answer: 2
+      },
+      {
+        q: "Kepanjangan AR dalam teknologi adalah:",
+        options: ["Artificial Robot", "Augmented Reality", "Auto Response", "Advanced RAM"],
+        answer: 1
+      }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let userAnswers = [];
+
+    // Elements
+    const screenStart = document.getElementById('screen-start');
+    const screenQuiz = document.getElementById('screen-quiz');
+    const screenResult = document.getElementById('screen-result');
+    const quizBadge = document.getElementById('quiz-badge');
+
+    const questionText = document.getElementById('question-text');
+    const optionsContainer = document.getElementById('options-container');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const scoreLiveText = document.getElementById('score-live-text');
+    const btnNext = document.getElementById('btn-next');
+
+    function startQuiz() {
+      currentQuestionIndex = 0;
+      score = 0;
+      userAnswers = [];
+      
+      screenStart.classList.add('hidden');
+      screenResult.classList.add('hidden');
+      screenQuiz.classList.remove('hidden');
+      quizBadge.classList.remove('hidden');
+
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      const qData = quizData[currentQuestionIndex];
+      questionText.textContent = `${currentQuestionIndex + 1}. ${qData.q}`;
+      
+      // Update Progress
+      const total = quizData.length;
+      const progressPercent = ((currentQuestionIndex + 1) / total) * 100;
+      progressBar.style.width = `${progressPercent}%`;
+      progressText.textContent = `Soal ${currentQuestionIndex + 1} dari ${total}`;
+      scoreLiveText.textContent = `Skor: ${score}`;
+
+      // Reset Next Button
+      btnNext.disabled = true;
+      btnNext.className = "w-full sm:w-auto px-6 py-3.5 bg-slate-700 text-slate-400 font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed";
+
+      // Render Options
+      optionsContainer.innerHTML = '';
+      const prefixes = ['a', 'b', 'c', 'd'];
+
+      qData.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.onclick = () => selectOption(idx);
+        btn.className = `option-btn w-full p-4 rounded-xl border text-left flex items-start gap-3 transition-all duration-200 bg-slate-900/60 border-slate-700 hover:border-slate-500 hover:bg-slate-800 text-slate-200`;
+        
+        btn.innerHTML = `
+          <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-slate-800 text-slate-400 text-xs font-bold shrink-0 uppercase">
+            ${prefixes[idx]}
+          </span>
+          <span class="text-sm sm:text-base font-medium leading-tight">${opt}</span>
+        `;
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function selectOption(selectedIndex) {
+      const qData = quizData[currentQuestionIndex];
+      const correctIndex = qData.answer;
+      const buttons = optionsContainer.querySelectorAll('.option-btn');
+
+      // Save user answer
+      userAnswers[currentQuestionIndex] = selectedIndex;
+
+      buttons.forEach((btn, idx) => {
+        btn.disabled = true;
+        btn.classList.remove('hover:border-slate-500', 'hover:bg-slate-800');
+
+        if (idx === correctIndex) {
+          btn.className = "w-full p-4 rounded-xl border text-left flex items-start gap-3 bg-emerald-500/20 border-emerald-500/80 text-emerald-200 font-medium";
+        } else if (idx === selectedIndex) {
+          btn.className = "w-full p-4 rounded-xl border text-left flex items-start gap-3 bg-rose-500/20 border-rose-500/80 text-rose-200 font-medium";
+        } else {
+          btn.className = "w-full p-4 rounded-xl border text-left flex items-start gap-3 bg-slate-900/30 border-slate-800 text-slate-500 opacity-60";
+        }
+      });
+
+      if (selectedIndex === correctIndex) {
+        score++;
+        scoreLiveText.textContent = `Skor: ${score}`;
+      }
+
+      // Enable Next Button
+      btnNext.disabled = false;
+      btnNext.className = "w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/20 transition-all cursor-pointer";
+    }
+
+    function nextQuestion() {
+      if (currentQuestionIndex < quizData.length - 1) {
+        currentQuestionIndex++;
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      screenQuiz.classList.add('hidden');
+      screenResult.classList.remove('hidden');
+
+      const total = quizData.length;
+      const percentage = Math.round((score / total) * 100);
+
+      document.getElementById('final-score').textContent = `${score} / ${total}`;
+      document.getElementById('final-percentage').textContent = `${percentage}% Jawaban Benar`;
+
+      const resultBadge = document.getElementById('result-badge');
+      if (percentage === 100) {
+        resultBadge.textContent = "🏆 Sempurna! Kamu Master Teknologi & AI!";
+      } else if (percentage >= 75) {
+        resultBadge.textContent = "🌟 Hebat! Pemahaman Teknologimu Sangat Baik!";
+      } else if (percentage >= 50) {
+        resultBadge.textContent = "👍 Cukup Bagus! Masih Bisa Ditingkatkan Lagi!";
+      } else {
+        resultBadge.textContent = "📚 Tetap Semangat! Yuk Belajar Lagi!";
+      }
+
+      // Render Review
+      const reviewList = document.getElementById('review-list');
+      reviewList.innerHTML = '';
+
+      quizData.forEach((q, idx) => {
+        const userAns = userAnswers[idx];
+        const isCorrect = userAns === q.answer;
+        const item = document.createElement('div');
+        item.className = `p-3 rounded-xl border text-xs sm:text-sm ${
+          isCorrect ? 'bg-emerald-950/20 border-emerald-800/50' : 'bg-rose-950/20 border-rose-800/50'
+        }`;
+
+        item.innerHTML = `
+          <div class="font-bold mb-1 ${isCorrect ? 'text-emerald-400' : 'text-rose-400'}">
+            ${idx + 1}. ${q.q}
+          </div>
+          <div class="text-slate-300">
+            Jawaban kamu: <span class="font-semibold">${userAns !== undefined ? q.options[userAns] : '-'}</span>
+          </div>
+          ${!isCorrect ? `
+            <div class="text-emerald-400 font-semibold mt-0.5">
+              Jawaban benar: ${q.options[q.answer]}
+            </div>
+          ` : ''}
+        `;
+        reviewList.appendChild(item);
+      });
+
+      // Confetti Effect if high score
+      if (percentage >= 70 && typeof confetti === 'function') {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      }
+    }
+
+    function shareWhatsApp() {
+      const percentage = Math.round((score / quizData.length) * 100);
+      const text = `🤖 Saya baru saja menyelesaikan Kuis Teknologi & AI!\n\n🏆 Skor Saya: ${score}/${quizData.length} (${percentage}%)\n\nYuk coba mainkan kuisnya dan tes seberapa paham kamu tentang AI & Teknologi di sini:\n${window.location.href}`;
+      const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank');
+    }
+
+    function restartQuiz() {
+      startQuiz();
+    }
+  </script>
+</body>
+</html>
+```
